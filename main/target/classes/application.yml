@@ -1,0 +1,20 @@
+#spring的数据源配置  
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql:///hos?serverTimezone=UTC
+    username: root
+    password: 1234
+
+#mybatis的配置   
+mybatis:  
+  type-aliases-package: com.house.pojo
+  configuration:
+    auto-mapping-behavior: FULL
+    use-generated-keys: true
+
+#分页合理化（页码小于0是自动为1，大于最大页码取最后一页）
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  pageSizeZero: true
