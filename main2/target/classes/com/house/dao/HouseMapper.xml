@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<!-- namespace映射接口的全路径 -->
+<mapper namespace="com.house.dao.HouseMapper">
+<!-- 
+SELECT su.phone,hd.dname,hs.sname,hh.`area`,ht.htname,hh.price,hh.topic,hh.contents FROM 
+sysuser su,hoshouse hh,hosdistrict hd,hostype ht,hosstreet hs
+WHERE  hh.topic LIKE '%门%' AND hh.did=1 AND hh.sid=1 AND hh.htid=1 AND 
+hh.price BETWEEN 1000 AND 5000 AND hh.`area` BETWEEN 80 AND 200  
+AND hh.uid=su.uid AND hh.htid=ht.htid AND hh.sid=hs.sid AND hh.did = hd.did
+ -->
+<sql id="condition">   
+  	<where>	
+  		<if test="topic!=null and topic!=''">
+  		    hh.topic like concat('%',#{topic},'%')
+  		</if>
+  		<if test="did!=null and did!=0">
+  			and hh.did=#{did}
+  		</if>
+  		<if test="sid!=null and sid!=0">
+  			and hh.sid=#{sid}
+  		</if>
+  		<if test="htid!=null and htid!=0">
+  			and hh.htid=#{htid}
+  		</if>
+  		<if test="PLPrice!=null and PLPrice!=0 and PHPrice!=null and PHPrice!=0">
+  			and hh.price between #{PLPrice} and #{PHPrice}
+  		</if>
+  		<if test="ALarea!=null and ALarea!=0 and AHarea!=null and AHarea!=0">
+  			and hh.area between #{ALarea} and #{AHarea}
+  		</if>
+  		<!-- AND hh.uid=su.uid AND hh.htid=ht.htid AND hh.sid=hs.sid AND hh.did = hd.did -->
+  	</where>
+  </sql>  
+  
+  <resultMap type="House" id="Hlist">
+    <id column="hmid" property="hmid"/>
+    <association property="user" javaType="User"/>
+    <association property="street" javaType="Street"/>
+    <association property="district" javaType="District"/>
+    <association property="type" javaType="Type"/>
+  </resultMap>
+  
+  
+  <select id="queryAll" resultMap="Hlist">
+  	SELECT hh.hmid,su.phone,hd.dname,hs.sname,hh.`area`,ht.htname,hh.price,hh.topic,hh.contents
+    FROM hoshouse hh LEFT JOIN sysuser su ON hh.uid=su.uid
+  	                 LEFT JOIN hosdistrict hd ON hh.did = hd.did
+  	                 LEFT JOIN hostype ht ON hh.htid=ht.htid
+  	                 LEFT JOIN hosstreet hs ON hh.sid=hs.sid 
+    <include refid="condition"/>  		
+  </select>
+  
+  <resultMap type="House" id="uHlist">
+    <id column="hmid" property="hmid"/>
+    <association property="user" javaType="User"/>
+    <association property="street" javaType="Street"/>
+    <association property="district" javaType="District"/>
+    <association property="type" javaType="Type"/>
+  </resultMap>
+     
+  <select id="queryHousesByUid" resultMap="uHlist">
+      SELECT hh.hmid,su.phone,hd.dname,hs.sname,hh.`area`,ht.htname,hh.price,hh.topic,hh.contents
+    FROM hoshouse hh LEFT JOIN sysuser su ON hh.uid=su.uid
+  	                 LEFT JOIN hosdistrict hd ON hh.did = hd.did
+  	                 LEFT JOIN hostype ht ON hh.htid=ht.htid
+  	                 LEFT JOIN hosstreet hs ON hh.sid=hs.sid
+  	   where hh.uid=#{uid}
+  </select>
+  
+  <update id="upHouseById">
+      UPDATE `hos`.`hoshouse` SET   `did` = #{did} , `sid` = #{sid} , `htid` = #{htid} , `price` =  #{price} , `area` = #{area} , `topic` = #{topic} , `contents` = #{contents}  WHERE `hmid` = #{hmid} and uid = #{uid} 
+  </update>
+  
+  <delete id="delHouseById">
+      DELETE FROM `hos`.`hoshouse` WHERE `hmid` =  #{hmid} and uid = #{uid} 
+  </delete>
+</mapper>
